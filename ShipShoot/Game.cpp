@@ -179,6 +179,10 @@ void PlayMode::UpdateInput(float dTime)
 	{
 		mPlayer.rotation = PI / 2.f;
 	}
+	else
+	{
+		mPlayer.rotation = 0;
+	}
 }
 
 void PlayMode::UpdateThrust(float dTime)
@@ -209,7 +213,7 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch) {
 	for (auto& s : mBgnd)
 		s.Draw(batch);
 	if (mThrusting > GetClock())
-		mThrust.Draw(batch);
+		//mThrust.Draw(batch);
 	mMissile.Render(batch);
 	mPlayer.Draw(batch);
 }
