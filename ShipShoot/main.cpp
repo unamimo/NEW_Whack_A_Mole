@@ -53,7 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
 {
 
-	int w(512), h(256);
+	int w(1024), h(512);
 	//int defaults[] = { 640,480, 800,600, 1024,768, 1280,1024 };
 		//WinUtil::ChooseRes(w, h, defaults, 4);
 	if (!WinUtil::Get().InitMainWindow(w, h, hInstance, "Whack a' Mole", MainWndProc, true))

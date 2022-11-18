@@ -120,7 +120,6 @@ void PlayMode::UpdateMissile(float dTime)
 }
 
 
-
 void PlayMode::UpdateBgnd(float dTime)
 {
 	//scroll the background layers
@@ -174,6 +173,11 @@ void PlayMode::UpdateInput(float dTime)
 
 		mPlayer.mPos = pos;
 		mThrusting = GetClock() + 0.2f;
+	}
+
+	if ((Game::sMKIn.IsPressed(VK_SPACE)) || (Game::sMKIn.GetMouseButton(MouseAndKeys::ButtonT::LBUTTON)))
+	{
+		mPlayer.rotation = PI / 2.f;
 	}
 }
 
@@ -234,14 +238,16 @@ void PlayMode::InitBgnd()
 		ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), f.second, f.first);
 		if (!p)
 			assert(false);
-		mBgnd[i++].SetTex(*p);
+		mBgnd[i].SetTex(*p);
+		mBgnd[i].SetScale(Vector2(2, 2));
+		i++;
 	}
 
 }
 
 void PlayMode::InitPlayer()
 {
-	//load a orientate the ship
+	//load a orientate the ship (hammer)
 	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "hammer.dds");
 	mPlayer.SetTex(*p);
 	mPlayer.SetScale(Vector2(0.3f, 0.3f));
