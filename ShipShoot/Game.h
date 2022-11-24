@@ -43,6 +43,8 @@ private:
 
 	MyD3D& mD3D;
 	std::vector<Sprite> mBgnd; //parallax layers
+	Sprite mMoleBgnd;   //mole bgnd
+	Sprite mMole;		//the mole itself
 	Sprite mPlayer;		//jet
 	RECTF mPlayArea;	//don't go outside this	
 	Sprite mThrust;		//flames out the back
@@ -54,7 +56,9 @@ private:
 
 	//setup once
 	void InitBgnd();
+	void InitMoleBgnd();
 	void InitPlayer();
+	void InitMole();
 
 	//make it move, reset it once it leaves the screen, only one at once
 	void UpdateMissile(float dTime);

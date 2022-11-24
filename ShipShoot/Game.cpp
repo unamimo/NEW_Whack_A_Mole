@@ -103,10 +103,12 @@ void Bullet::Update(float dTime)
 }
 
 PlayMode::PlayMode(MyD3D& d3d)
-	:mD3D(d3d), mPlayer(d3d), mThrust(d3d), mMissile(d3d)
+	:mD3D(d3d), mPlayer(d3d), mThrust(d3d), mMissile(d3d), mMoleBgnd(d3d), mMole(d3d)
 {
 	InitBgnd();
+	InitMoleBgnd();
 	InitPlayer();
+	InitMole();
 }
 
 void PlayMode::UpdateMissile(float dTime)
@@ -210,12 +212,14 @@ void PlayMode::Update(float dTime)
 }
 
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch) {
-	for (auto& s : mBgnd)
-		s.Draw(batch);
+	//for (auto& s : mBgnd)
+		//s.Draw(batch);
+	mMoleBgnd.Draw(batch);
 	if (mThrusting > GetClock())
 		//mThrust.Draw(batch);
-	mMissile.Render(batch);
-	mPlayer.Draw(batch);
+		mMissile.Render(batch);
+		mMole.Draw(batch);
+		mPlayer.Draw(batch);
 }
 
 void PlayMode::InitBgnd()
@@ -249,9 +253,24 @@ void PlayMode::InitBgnd()
 
 }
 
+void PlayMode::InitMoleBgnd()
+{
+	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "background.dds");
+	mMoleBgnd.SetTex(*p);
+	mMoleBgnd.origin = mMoleBgnd.GetTexData().dim/20.f;
+	mMoleBgnd.SetScale(Vector2(0.5, 0.5));
+}
+
+void PlayMode::InitMole()
+{
+	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "mole.dds");
+	mMole.SetTex(*p);
+	mMole.SetScale(Vector2(0.6f, 0.6f));
+}
+
 void PlayMode::InitPlayer()
 {
-	//load a orientate the ship (hammer)
+	//load a orientate the hammer
 	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "hammer.dds");
 	mPlayer.SetTex(*p);
 	mPlayer.SetScale(Vector2(0.3f, 0.3f));
