@@ -44,8 +44,9 @@ private:
 	MyD3D& mD3D;
 	std::vector<Sprite> mBgnd; //parallax layers
 	Sprite mMoleBgnd;   //mole bgnd
-	Sprite mMole;		//the mole itself
+	std::vector<Sprite> mMole;		//multiple moles
 	Sprite mPlayer;		//jet
+	Sprite MoleSpr;
 	RECTF mPlayArea;	//don't go outside this	
 	Sprite mThrust;		//flames out the back
 	Bullet mMissile;	//weapon, only one at once
@@ -92,6 +93,7 @@ private:
 	DirectX::SpriteBatch *mpSB = nullptr;
 	//not much of a game, but this is it
 	PlayMode mPMode;
+	const int num_moles = 9;
 };
 
 
