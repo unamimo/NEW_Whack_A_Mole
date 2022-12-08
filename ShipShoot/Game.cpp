@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "WindowUtils.h"
 #include "CommonStates.h"
+#include <iostream>
 
 using namespace std;
 using namespace DirectX;
@@ -103,13 +104,56 @@ void Bullet::Update(float dTime)
 }
 
 PlayMode::PlayMode(MyD3D& d3d)
-	:mD3D(d3d), mPlayer(d3d), mThrust(d3d), mMissile(d3d), mMoleBgnd(d3d), MoleSpr(d3d)
+	:mD3D(d3d), mPlayer(d3d), mThrust(d3d), mMissile(d3d), mMoleBgnd(d3d)//, MoleSpr(d3d)
 {
 	InitBgnd();
 	InitMoleBgnd();
 	InitPlayer();
 	InitMole();
 }
+
+/*
+bool PlayMode::check_collisions(Sprite& sprite1, Sprite& sprite2)
+{
+	bool CollisionX = false;
+	bool CollisionY = false;
+
+	vector<Vector2> bottom_right = { {sprite1.mPos.x + sprite1.GetScreenSize().x, sprite1.mPos.y + sprite1.GetScreenSize().y},
+	{sprite2.mPos.x + sprite2.GetScreenSize().x, sprite2.mPos.y + sprite2.GetScreenSize().y} };
+
+	//collision x
+	if (bottom_right[0].x >= sprite2.mPos.x && bottom_right[1].x >= sprite1.mPos.x)
+	{
+		CollisionX = true;
+	}
+
+	//collison y
+	if (bottom_right[0].y >= sprite2.mPos.y && bottom_right[1].y >= sprite1.mPos.y)
+	{
+		CollisionY = true;
+	}
+
+	if (CollisionX && CollisionY)
+	{
+		return true;
+	}
+}
+*/
+
+bool PlayMode::check_collisions(Sprite& sprite1, Sprite& sprite2)
+{
+	//distance between origins
+	float origin_dis_x = sprite1.origin.x - sprite2.origin.x;
+	float origin_dis_y = sprite1.origin.y - sprite2.origin.y;
+	float distance_between = sqrt((origin_dis_x)+(origin_dis_y));
+	
+
+	if (((sprite1.GetScreenSize().x)/2 + (sprite2.GetScreenSize().x)/2) > origin_dis_x && ((sprite1.GetScreenSize().y) / 2 + (sprite2.GetScreenSize().y) / 2) > origin_dis_y)
+	{
+		return true;
+	}
+}
+
 
 void PlayMode::UpdateMissile(float dTime)
 {
@@ -208,7 +252,6 @@ void PlayMode::Update(float dTime)
 	UpdateInput(dTime);
 
 	UpdateThrust(dTime);
-
 }
 
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch) 
@@ -219,7 +262,13 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch)
 	for (size_t i = 0; i < mMole.size(); i++)
 	{
 		mMole[i].Draw(batch);
+		if (check_collisions(mMole[i], mPlayer))
+		{
+			std::cout << "the player and mole have collided";
+		}
 	}
+
+
 	if (mThrusting > GetClock())
 		//mThrust.Draw(batch);
 		mMissile.Render(batch);
@@ -272,6 +321,7 @@ void PlayMode::InitMole()
 	{142, 165}, {335, 165}, {530, 165},
 	{142, 310}, {335, 310}, {530, 310} };
 
+	Sprite MoleSpr(mD3D);
 	for (size_t i = 0; i < 9; i++)
 	{
 		mMole.push_back(MoleSpr);

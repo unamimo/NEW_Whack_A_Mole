@@ -34,6 +34,7 @@ public:
 	PlayMode(MyD3D& d3d);
 	void Update(float dTime);
 	void Render(float dTime, DirectX::SpriteBatch& batch);
+	bool check_collisions(Sprite& sprite1, Sprite& sprite2);
 private:
 	const float SCROLL_SPEED = 10.f;
 	static const int BGND_LAYERS = 8;
@@ -46,7 +47,7 @@ private:
 	Sprite mMoleBgnd;   //mole bgnd
 	std::vector<Sprite> mMole;		//multiple moles
 	Sprite mPlayer;		//jet
-	Sprite MoleSpr;
+	//Sprite MoleSpr;
 	RECTF mPlayArea;	//don't go outside this	
 	Sprite mThrust;		//flames out the back
 	Bullet mMissile;	//weapon, only one at once
