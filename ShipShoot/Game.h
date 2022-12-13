@@ -35,6 +35,7 @@ public:
 	void Update(float dTime);
 	void Render(float dTime, DirectX::SpriteBatch& batch);
 	bool check_collisions(Sprite& sprite1, Sprite& sprite2);
+	void set_random_pos(Sprite& sprite1);
 private:
 	const float SCROLL_SPEED = 10.f;
 	static const int BGND_LAYERS = 8;
