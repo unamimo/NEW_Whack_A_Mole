@@ -279,12 +279,14 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch)
 			set_random_pos(mMole[i]);
 		}
 	}
-	if (mThrusting > GetClock())
+	mPlayer.Draw(batch);
+
+	/*if (mThrusting > GetClock())
 	{
 		//mThrust.Draw(batch);
 		//mMissile.Render(batch);
-		mPlayer.Draw(batch);
-	}
+		//mPlayer.Draw(batch);
+	}*/
 }
 
 void PlayMode::InitBgnd()
