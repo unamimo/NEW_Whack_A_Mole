@@ -33,11 +33,14 @@ const RECTF thrustAnim[]{
 };
 
 Game::Game(MyD3D& d3d)
-	: mPMode(d3d), mD3D(d3d), mpSB(nullptr)
+	: mPMode(d3d), mD3D(d3d), mpSB(nullptr), pFont(nullptr)
 {
 	sMKIn.Initialise(WinUtil::Get().GetMainWnd(), true, false);
 	sGamepads.Initialise();
 	mpSB = new SpriteBatch(&mD3D.GetDeviceCtx());
+
+	//for text
+	pFont = new SpriteFont(&mD3D.GetDevice(), L"data/fonts/comicSansMS.spritefont");
 }
 
 
@@ -45,7 +48,9 @@ Game::Game(MyD3D& d3d)
 void Game::Release()
 {
 	delete mpSB;
+	delete pFont;
 	mpSB = nullptr;
+	pFont = nullptr;
 }
 
 //called over and over, use it to update game logic
@@ -71,7 +76,7 @@ void Game::Render(float dTime)
 	switch (state)
 	{
 	case State::PLAY:
-		mPMode.Render(dTime, *mpSB);
+		mPMode.Render(dTime, *mpSB, *pFont);
 	}
 
 	mpSB->End();
@@ -257,7 +262,7 @@ void PlayMode::Update(float dTime)
 	UpdateThrust(dTime);
 }
 
-void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch)
+void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont& font)
 {
 	//for (auto& s : mBgnd)
 		//s.Draw(batch);

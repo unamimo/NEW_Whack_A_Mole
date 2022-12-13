@@ -6,6 +6,7 @@
 #include "D3D.h"
 #include "SpriteBatch.h"
 #include "Sprite.h"
+#include "SpriteFont.h"
 
 /*
 Animated missile bullet 
@@ -33,7 +34,7 @@ class PlayMode
 public:
 	PlayMode(MyD3D& d3d);
 	void Update(float dTime);
-	void Render(float dTime, DirectX::SpriteBatch& batch);
+	void Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont& font);
 	bool check_collisions(Sprite& sprite1, Sprite& sprite2);
 	void set_random_pos(Sprite& sprite1);
 private:
@@ -93,6 +94,7 @@ public:
 private:
 	MyD3D& mD3D;
 	DirectX::SpriteBatch *mpSB = nullptr;
+	DirectX::SpriteFont *pFont = nullptr;
 	//not much of a game, but this is it
 	PlayMode mPMode;
 	const int num_moles = 9;
