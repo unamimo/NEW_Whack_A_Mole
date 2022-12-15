@@ -34,7 +34,7 @@ class PlayMode
 public:
 	PlayMode(MyD3D& d3d);
 	void Update(float dTime);
-	void Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont& font);
+	void Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);
 	bool check_collisions(Sprite& sprite1, Sprite& sprite2);
 	void set_random_pos(Sprite& sprite1);
 private:
@@ -47,7 +47,7 @@ private:
 	MyD3D& mD3D;
 	std::vector<Sprite> mBgnd; //parallax layers
 	Sprite mMoleBgnd;   //mole bgnd
-	std::vector<Sprite> mMole;		//multiple moles
+	Sprite mMole;		//multiple moles
 	Sprite mPlayer;		//jet
 	//Sprite MoleSpr;
 	RECTF mPlayArea;	//don't go outside this	
@@ -97,7 +97,6 @@ private:
 	DirectX::SpriteFont *pFont = nullptr;
 	//not much of a game, but this is it
 	PlayMode mPMode;
-	const int num_moles = 9;
 };
 
 

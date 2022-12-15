@@ -16,7 +16,6 @@ using namespace std::chrono; // nanoseconds, system_clock, seconds
 
 MouseAndKeys Game::sMKIn;
 Gamepads Game::sGamepads;
-//timer mytimer;
 
 const RECTF missileSpin[]{
 	{ 0,  0, 53, 48},
@@ -76,7 +75,7 @@ void Game::Render(float dTime)
 	switch (state)
 	{
 	case State::PLAY:
-		mPMode.Render(dTime, *mpSB, *pFont);
+		mPMode.Render(dTime, *mpSB, pFont);
 	}
 
 	mpSB->End();
@@ -117,7 +116,7 @@ void Bullet::Update(float dTime)
 }
 
 PlayMode::PlayMode(MyD3D& d3d)
-	:mD3D(d3d), mPlayer(d3d), mThrust(d3d), mMissile(d3d), mMoleBgnd(d3d)//, MoleSpr(d3d)
+	:mD3D(d3d), mPlayer(d3d), mThrust(d3d), mMissile(d3d), mMoleBgnd(d3d), mMole(d3d)
 {
 	InitBgnd();
 	InitMoleBgnd();
@@ -137,11 +136,9 @@ bool PlayMode::check_collisions(Sprite& sprite1, Sprite& sprite2)
 		return false;
 	}
 
-	DBOUT("Mole x=" << sprite1.mPos.x << ", Y=" << sprite1.mPos.y);
 	if (((sprite1.GetScreenSize().x)/2 + (sprite2.GetScreenSize().x)/2) > origin_dis_x && 
 		((sprite1.GetScreenSize().y) / 2 + (sprite2.GetScreenSize().y) / 2) > origin_dis_y)
 	{
-		DBOUT("Collision detected");
 		return true;
 	}
 	else
@@ -262,29 +259,36 @@ void PlayMode::Update(float dTime)
 	UpdateThrust(dTime);
 }
 
-void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont& font)
+void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
 {
 	//for (auto& s : mBgnd)
 		//s.Draw(batch);
 	bool whacked = false;
+	int score = 0;  
+	stringstream ss;
+	ss << "Score: " << score;
 	mMoleBgnd.Draw(batch);
-	for (size_t i = 0; i < mMole.size(); i++)
+
+	mMole.Draw(batch);
+	if (check_collisions(mMole, mPlayer) && (Game::sMKIn.IsPressed(VK_SPACE)
+		|| Game::sMKIn.GetMouseButton(MouseAndKeys::ButtonT::LBUTTON)))
 	{
-		mMole[i].Draw(batch);
-		if (check_collisions(mMole[i], mPlayer) && (Game::sMKIn.IsPressed(VK_SPACE)
-			|| Game::sMKIn.GetMouseButton(MouseAndKeys::ButtonT::LBUTTON)))
+		mMole.colour = Vector4(0, 255, 0, 0);
+		if (mMole.colour == Vector4(0, 255, 0, 0))
 		{
-			mMole[i].colour = Vector4(0, 255, 0, 0);
-			DBOUT("the player and mole have collided");
 			whacked = true;
 		}
 		if (whacked)
 		{
-			mMole[i].colour = Vector4(1, 1, 1, 1);
-			set_random_pos(mMole[i]);
+			mMole.colour = Vector4(1, 1, 1, 1);
+			set_random_pos(mMole);
+			score += 1;
+			DBOUT(score);
 		}
 	}
+
 	mPlayer.Draw(batch);
+	font->DrawString(&batch, ss.str().c_str(), Vector2(0, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 
 	/*if (mThrusting > GetClock())
 	{
@@ -335,25 +339,16 @@ void PlayMode::InitMoleBgnd()
 
 void PlayMode::InitMole()
 {
-	Sprite MoleSpr(mD3D);
-	for (size_t i = 0; i < 9; i++)
-	{
-		mMole.push_back(MoleSpr);
-	}
-
-	for (size_t i = 0; i < mMole.size(); i++)
-	{
-		ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "mole.dds");
-		mMole[i].SetTex(*p); 
-		mMole[i].SetScale(Vector2(0.6f, 0.6f));
-		set_random_pos(mMole[i]);
-	}
+	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "mole.dds");
+	mMole.SetTex(*p); 
+	mMole.SetScale(Vector2(0.6f, 0.6f));
+	set_random_pos(mMole);
 }
 
 
 void PlayMode::InitPlayer()
 {
-	//load a orientate the hammer
+	//load and orientate the hammer
 	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "hammer.dds");
 	mPlayer.SetTex(*p);
 	mPlayer.SetScale(Vector2(0.3f, 0.3f));
