@@ -43,6 +43,8 @@ private:
 	const float SPEED = 250;
 	const float MOUSE_SPEED = 5000;
 	const float PAD_SPEED = 500;
+	bool mouseAlreadyDown = false;
+	bool keyAlreadyDown = false;
 
 	MyD3D& mD3D;
 	std::vector<Sprite> mBgnd; //parallax layers

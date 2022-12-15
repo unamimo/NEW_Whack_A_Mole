@@ -268,9 +268,11 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 	mMoleBgnd.Draw(batch);
 
 	mMole.Draw(batch);
-	if (check_collisions(mMole, mPlayer) && (Game::sMKIn.IsPressed(VK_SPACE)
-		|| Game::sMKIn.GetMouseButton(MouseAndKeys::ButtonT::LBUTTON)))
+	if (check_collisions(mMole, mPlayer) && (Game::sMKIn.IsPressed(VK_SPACE) && !keyAlreadyDown
+		|| (Game::sMKIn.GetMouseButton(MouseAndKeys::ButtonT::LBUTTON) && !mouseAlreadyDown)))
 	{
+		mouseAlreadyDown = true;
+		keyAlreadyDown = true;
 		mMole.colour = Vector4(0, 255, 0, 0);
 		if (mMole.colour == Vector4(0, 255, 0, 0))
 		{
@@ -284,6 +286,10 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 			DBOUT(score);
 		}
 	}
+	if (!Game::sMKIn.GetMouseButton(MouseAndKeys::ButtonT::LBUTTON))
+		mouseAlreadyDown = false;
+	if (!Game::sMKIn.IsPressed(VK_SPACE))
+		keyAlreadyDown = false;
 
 	mPlayer.Draw(batch);
 	font->DrawString(&batch, ss.str().c_str(), Vector2(0, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
