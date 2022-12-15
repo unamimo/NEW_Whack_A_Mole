@@ -160,6 +160,15 @@ void PlayMode::set_random_pos(Sprite& sprite1)
 	sprite1.mPos = Vector2{ hole_coordinates[random_hole_pos].x, hole_coordinates[random_hole_pos].y };
 }
 
+void PlayMode::UpdateTimer(float dTime)
+{
+	game_time -= dTime;
+	if (game_time == 0)
+	{
+		game_time = 0;
+	}
+}
+
 void PlayMode::UpdateMissile(float dTime)
 {
 	if (!mMissile.active && Game::sMKIn.IsPressed(VK_SPACE))
@@ -261,10 +270,15 @@ void PlayMode::Update(float dTime)
 
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
 {
-	bool whacked = false;
-	//int score = 0;  
+	UpdateTimer(dTime);
+	DBOUT(game_time);
+
+	bool whacked = false; 
 	stringstream ss;
 	ss << "Score: " << score;
+	stringstream timer_text;
+	timer_text << "Time: " << game_time;
+
 	mMoleBgnd.Draw(batch);
 
 	mMole.Draw(batch);
@@ -293,6 +307,7 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 
 	mPlayer.Draw(batch);
 	font->DrawString(&batch, ss.str().c_str(), Vector2(0, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
+	font->DrawString(&batch, timer_text.str().c_str(), Vector2(725, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 }
 
 void PlayMode::InitBgnd()

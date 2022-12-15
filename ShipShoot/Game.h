@@ -45,6 +45,7 @@ private:
 	const float PAD_SPEED = 500;
 	bool mouseAlreadyDown = false;
 	bool keyAlreadyDown = false;
+	float game_time = 120;
 
 	MyD3D& mD3D;
 	std::vector<Sprite> mBgnd; //parallax layers
@@ -75,6 +76,8 @@ private:
 	void UpdateInput(float dTime);
 	//make the flames wobble when the ship moves
 	void UpdateThrust(float dTime);
+	//time the game
+	void UpdateTimer(float dTime);
 };
 
 
