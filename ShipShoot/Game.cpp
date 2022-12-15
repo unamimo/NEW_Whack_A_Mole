@@ -261,10 +261,8 @@ void PlayMode::Update(float dTime)
 
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
 {
-	//for (auto& s : mBgnd)
-		//s.Draw(batch);
 	bool whacked = false;
-	int score = 0;  
+	//int score = 0;  
 	stringstream ss;
 	ss << "Score: " << score;
 	mMoleBgnd.Draw(batch);
@@ -289,13 +287,6 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 
 	mPlayer.Draw(batch);
 	font->DrawString(&batch, ss.str().c_str(), Vector2(0, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
-
-	/*if (mThrusting > GetClock())
-	{
-		//mThrust.Draw(batch);
-		//mMissile.Render(batch);
-		//mPlayer.Draw(batch);
-	}*/
 }
 
 void PlayMode::InitBgnd()

@@ -49,6 +49,7 @@ private:
 	Sprite mMoleBgnd;   //mole bgnd
 	Sprite mMole;		//multiple moles
 	Sprite mPlayer;		//jet
+	int score = 0;
 	//Sprite MoleSpr;
 	RECTF mPlayArea;	//don't go outside this	
 	Sprite mThrust;		//flames out the back
