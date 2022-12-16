@@ -59,8 +59,11 @@ void Game::Update(float dTime)
 	switch (game_state)
 	{
 	case State::INTRO:
-
-
+		if (Game::sMKIn.IsPressed(VK_P))
+		{
+			mPMode.UpdateIntro(dTime);
+			game_state = State::PLAY;
+		}
 	case State::PLAY:
 		mPMode.Update(dTime);
 		if (mPMode.check_time(dTime) == true)
@@ -99,6 +102,10 @@ void Game::Render(float dTime)
 
 	case State::END:
 		mPMode.RenderEnd(dTime, *mpSB, pFont);
+		break;
+
+	case State::INTRO:
+		mPMode.RenderIntro(dTime, *mpSB, pFont);
 		break;
 	}
 
@@ -376,9 +383,9 @@ void PlayMode::RenderIntro(float dTime, DirectX::SpriteBatch& batch, DirectX::Sp
 	string end_text = "Whack a' Mole";
 	stringstream ss;
 	ss << "Score: " << score;
-	string replay_text = "Press R to replay";
-	font->DrawString(&batch, end_text.c_str(), Vector2(200, 0), Colours::Green, 0.f, Vector2(0, 0), Vector2(4, 4));
-	font->DrawString(&batch, replay_text.c_str(), Vector2(336, 300), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
+	string play_text = "Press P to play";
+	font->DrawString(&batch, end_text.c_str(), Vector2(136, 0), Colours::Green, 0.f, Vector2(0, 0), Vector2(4, 4));
+	font->DrawString(&batch, play_text.c_str(), Vector2(336, 300), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 }
 
 void PlayMode::InitBgnd()
