@@ -56,10 +56,17 @@ void Game::Release()
 void Game::Update(float dTime)
 {
 	sGamepads.Update();
-	switch (state)
+	switch (game_state)
 	{
 	case State::PLAY:
 		mPMode.Update(dTime);
+		if (mPMode.check_time(dTime) == true)
+		{
+			game_state = State::END; //End the game
+			break;
+		}
+	case State::END:
+		mPMode.UpdateEnd(dTime);
 	}
 }
 
@@ -72,10 +79,20 @@ void Game::Render(float dTime)
 	CommonStates dxstate(&mD3D.GetDevice());
 	mpSB->Begin(SpriteSortMode_Deferred, dxstate.NonPremultiplied(), &mD3D.GetWrapSampler());
 
-	switch (state)
+	switch (game_state)
 	{
 	case State::PLAY:
 		mPMode.Render(dTime, *mpSB, pFont);
+		if (mPMode.check_time(dTime) == true)
+		{
+			game_state = State::END; //End the game
+			break;
+		}
+		break;
+
+	case State::END:
+		mPMode.RenderEnd(dTime, *mpSB, pFont);
+		break;
 	}
 
 	mpSB->End();
@@ -116,12 +133,13 @@ void Bullet::Update(float dTime)
 }
 
 PlayMode::PlayMode(MyD3D& d3d)
-	:mD3D(d3d), mPlayer(d3d), mThrust(d3d), mMissile(d3d), mMoleBgnd(d3d), mMole(d3d)
+	:mD3D(d3d), mPlayer(d3d), mThrust(d3d), mMissile(d3d), mMoleBgnd(d3d), mMole(d3d), mEndScreen(d3d)
 {
 	InitBgnd();
 	InitMoleBgnd();
 	InitPlayer();
 	InitMole();
+	InitEndScreen();
 }
 
 bool PlayMode::check_collisions(Sprite& sprite1, Sprite& sprite2)
@@ -129,7 +147,6 @@ bool PlayMode::check_collisions(Sprite& sprite1, Sprite& sprite2)
 	//distance between origins
 	float origin_dis_x = fabs(sprite1.mPos.x - sprite2.mPos.x);
 	float origin_dis_y = fabs(sprite1.mPos.y - sprite2.mPos.y);
-	//float distance_between = sqrt((origin_dis_x)+(origin_dis_y));
 	
 	if ((sprite1.colour == Vector4(0, 255, 0, 0)) || (sprite2.colour == Vector4(0, 255, 0, 0)))
 	{
@@ -163,9 +180,22 @@ void PlayMode::set_random_pos(Sprite& sprite1)
 void PlayMode::UpdateTimer(float dTime)
 {
 	game_time -= dTime;
-	if (game_time == 0)
+	if (game_time <= 0)
 	{
 		game_time = 0;
+	}
+}
+
+bool PlayMode::check_time(float dTime)
+{
+	bool game_time_end = false;
+	if (game_time <= 0)
+	{
+		bool game_time_end = true;
+	}
+	if (game_time_end)
+	{
+		return true;
 	}
 }
 
@@ -268,6 +298,11 @@ void PlayMode::Update(float dTime)
 	UpdateThrust(dTime);
 }
 
+void PlayMode::UpdateEnd(float dTime)
+{
+	///things here
+}
+
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
 {
 	UpdateTimer(dTime);
@@ -308,6 +343,14 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 	mPlayer.Draw(batch);
 	font->DrawString(&batch, ss.str().c_str(), Vector2(0, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 	font->DrawString(&batch, timer_text.str().c_str(), Vector2(725, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
+}
+
+void PlayMode::RenderEnd(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
+{
+	mEndScreen.Draw(batch);
+
+	string end_text = "Game Over";
+	font->DrawString(&batch, end_text.c_str(), Vector2(400, 0), Colours::Red, 0.f, Vector2(0, 0), Vector2(1, 1));
 }
 
 void PlayMode::InitBgnd()
@@ -357,7 +400,6 @@ void PlayMode::InitMole()
 	set_random_pos(mMole);
 }
 
-
 void PlayMode::InitPlayer()
 {
 	//load and orientate the hammer
@@ -383,4 +425,11 @@ void PlayMode::InitPlayer()
 	mThrust.rotation = PI / 2.f;
 
 	mMissile.Init(mD3D);
+}
+
+void PlayMode::InitEndScreen()
+{
+	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "grey_screen.dds");
+	mEndScreen.SetTex(*p);
+	mEndScreen.origin = mPlayer.GetTexData().dim / 2.f;
 }

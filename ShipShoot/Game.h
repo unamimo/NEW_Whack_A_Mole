@@ -34,9 +34,12 @@ class PlayMode
 public:
 	PlayMode(MyD3D& d3d);
 	void Update(float dTime);
+	void UpdateEnd(float dTime);
 	void Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);
+	void RenderEnd(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);
 	bool check_collisions(Sprite& sprite1, Sprite& sprite2);
 	void set_random_pos(Sprite& sprite1);
+	bool check_time(float dTime);
 private:
 	const float SCROLL_SPEED = 10.f;
 	static const int BGND_LAYERS = 8;
@@ -46,17 +49,17 @@ private:
 	bool mouseAlreadyDown = false;
 	bool keyAlreadyDown = false;
 	float game_time = 120;
+	int score = 0;
 
 	MyD3D& mD3D;
 	std::vector<Sprite> mBgnd; //parallax layers
 	Sprite mMoleBgnd;   //mole bgnd
-	Sprite mMole;		//multiple moles
-	Sprite mPlayer;		//jet
-	int score = 0;
-	//Sprite MoleSpr;
-	RECTF mPlayArea;	//don't go outside this	
-	Sprite mThrust;		//flames out the back
-	Bullet mMissile;	//weapon, only one at once
+	Sprite mMole;		//moles
+	Sprite mPlayer;		//hammer
+	Sprite mEndScreen;
+	RECTF mPlayArea;
+	Sprite mThrust;	
+	Bullet mMissile;
 	
 	//once we start thrusting we have to keep doing it for 
 	//at least a fraction of a second or it looks whack
@@ -67,6 +70,7 @@ private:
 	void InitMoleBgnd();
 	void InitPlayer();
 	void InitMole();
+	void InitEndScreen();
 
 	//make it move, reset it once it leaves the screen, only one at once
 	void UpdateMissile(float dTime);
@@ -87,10 +91,9 @@ Basic wrapper for a game
 class Game
 {
 public:
-	enum class State { PLAY };
+	enum class State { PLAY, END } game_state = State::PLAY;
 	static MouseAndKeys sMKIn;
 	static Gamepads sGamepads;
-	State state = State::PLAY;
 	Game(MyD3D& d3d);
 
 
