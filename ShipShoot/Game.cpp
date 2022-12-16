@@ -58,6 +58,9 @@ void Game::Update(float dTime)
 	sGamepads.Update();
 	switch (game_state)
 	{
+	case State::INTRO:
+
+
 	case State::PLAY:
 		mPMode.Update(dTime);
 		if (mPMode.check_time(dTime) == true)
@@ -66,7 +69,11 @@ void Game::Update(float dTime)
 			break;
 		}
 	case State::END:
-		mPMode.UpdateEnd(dTime);
+		if (Game::sMKIn.IsPressed(VK_R))
+		{
+			mPMode.UpdateEnd(dTime);
+			game_state = State::PLAY;
+		}
 	}
 }
 
@@ -297,7 +304,14 @@ void PlayMode::Update(float dTime)
 
 void PlayMode::UpdateEnd(float dTime)
 {
-	///things here
+	game_time = 90;
+	score = 0;
+}
+
+void PlayMode::UpdateIntro(float dTime)
+{
+	///things here 
+	//anything that needs to be changed in the into
 }
 
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
@@ -347,7 +361,24 @@ void PlayMode::RenderEnd(float dTime, DirectX::SpriteBatch& batch, DirectX::Spri
 	mEndScreen.Draw(batch);
 
 	string end_text = "Game Over";
-	font->DrawString(&batch, end_text.c_str(), Vector2(400, 0), Colours::Red, 0.f, Vector2(0, 0), Vector2(1, 1));
+	stringstream ss;
+	ss << "Score: " << score;
+	string replay_text = "Press R to replay";
+	font->DrawString(&batch, end_text.c_str(), Vector2(200, 0), Colours::Red, 0.f, Vector2(0, 0), Vector2(4, 4));
+	font->DrawString(&batch, ss.str().c_str(), Vector2(370, 200), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
+	font->DrawString(&batch, replay_text.c_str(), Vector2(336, 300), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
+}
+
+void PlayMode::RenderIntro(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
+{
+	mEndScreen.Draw(batch);
+
+	string end_text = "Whack a' Mole";
+	stringstream ss;
+	ss << "Score: " << score;
+	string replay_text = "Press R to replay";
+	font->DrawString(&batch, end_text.c_str(), Vector2(200, 0), Colours::Green, 0.f, Vector2(0, 0), Vector2(4, 4));
+	font->DrawString(&batch, replay_text.c_str(), Vector2(336, 300), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 }
 
 void PlayMode::InitBgnd()
@@ -428,5 +459,6 @@ void PlayMode::InitEndScreen()
 {
 	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "grey_screen.dds");
 	mEndScreen.SetTex(*p);
+	mEndScreen.SetScale(Vector2(2.f, 2.f));
 	mEndScreen.origin = mPlayer.GetTexData().dim / 2.f;
 }

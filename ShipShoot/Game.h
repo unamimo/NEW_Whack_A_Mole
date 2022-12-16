@@ -35,8 +35,10 @@ public:
 	PlayMode(MyD3D& d3d);
 	void Update(float dTime);
 	void UpdateEnd(float dTime);
+	void UpdateIntro(float dTime);
 	void Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);
 	void RenderEnd(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);
+	void RenderIntro(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);
 	bool check_collisions(Sprite& sprite1, Sprite& sprite2);
 	void set_random_pos(Sprite& sprite1);
 	bool check_time(float dTime);
@@ -48,7 +50,7 @@ private:
 	const float PAD_SPEED = 500;
 	bool mouseAlreadyDown = false;
 	bool keyAlreadyDown = false;
-	float game_time = 10;
+	float game_time = 90;
 	int score = 0;
 
 	MyD3D& mD3D;
@@ -91,7 +93,7 @@ Basic wrapper for a game
 class Game
 {
 public:
-	enum class State { PLAY, END } game_state = State::PLAY;
+	enum class State { INTRO, PLAY, END } game_state = State::INTRO;
 	static MouseAndKeys sMKIn;
 	static Gamepads sGamepads;
 	Game(MyD3D& d3d);
