@@ -192,9 +192,6 @@ bool PlayMode::check_time(float dTime)
 	if (game_time <= 0)
 	{
 		bool game_time_end = true;
-	}
-	if (game_time_end)
-	{
 		return true;
 	}
 }
@@ -305,9 +302,6 @@ void PlayMode::UpdateEnd(float dTime)
 
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
 {
-	UpdateTimer(dTime);
-	DBOUT(game_time);
-
 	bool whacked = false; 
 	stringstream ss;
 	ss << "Score: " << score;
@@ -343,6 +337,9 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 	mPlayer.Draw(batch);
 	font->DrawString(&batch, ss.str().c_str(), Vector2(0, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 	font->DrawString(&batch, timer_text.str().c_str(), Vector2(725, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
+
+	UpdateTimer(dTime);
+	DBOUT(game_time);
 }
 
 void PlayMode::RenderEnd(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)

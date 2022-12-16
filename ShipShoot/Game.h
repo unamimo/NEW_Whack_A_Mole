@@ -48,7 +48,7 @@ private:
 	const float PAD_SPEED = 500;
 	bool mouseAlreadyDown = false;
 	bool keyAlreadyDown = false;
-	float game_time = 120;
+	float game_time = 10;
 	int score = 0;
 
 	MyD3D& mD3D;
