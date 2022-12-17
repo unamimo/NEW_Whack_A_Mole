@@ -42,6 +42,7 @@ public:
 	bool check_collisions(Sprite& sprite1, Sprite& sprite2);
 	void set_random_pos(Sprite& sprite1);
 	bool check_time(float dTime);
+	void high_scores(int score);
 private:
 	const float SCROLL_SPEED = 10.f;
 	static const int BGND_LAYERS = 8;
@@ -50,7 +51,7 @@ private:
 	const float PAD_SPEED = 500;
 	bool mouseAlreadyDown = false;
 	bool keyAlreadyDown = false;
-	float game_time = 90;
+	float game_time = 20;
 	int score = 0;
 
 	MyD3D& mD3D;

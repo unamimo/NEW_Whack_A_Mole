@@ -6,6 +6,7 @@
 #include <thread>
 #include <cstdlib>		// for srand()
 #include <ctime>		// in use with srand() 
+#include <cmath>		//trunc() - removes decimals
 
 
 using namespace std;
@@ -191,6 +192,21 @@ void PlayMode::set_random_pos(Sprite& sprite1)
 	sprite1.mPos = Vector2{ hole_coordinates[random_hole_pos].x, hole_coordinates[random_hole_pos].y };
 }
 
+void PlayMode::high_scores(int score)
+{
+	vector<int> score_table = {};
+
+	if (score > 0)
+	{
+		score_table.push_back(score);
+	}
+	
+	for (size_t i = 0; i < score_table.size(); i++)
+	{
+		DBOUT(i);
+	}
+}
+
 void PlayMode::UpdateTimer(float dTime)
 {
 	game_time -= dTime;
@@ -311,7 +327,7 @@ void PlayMode::Update(float dTime)
 
 void PlayMode::UpdateEnd(float dTime)
 {
-	game_time = 90;
+	game_time = 20;
 	score = 0;
 }
 
@@ -347,7 +363,8 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 			mMole.colour = Vector4(1, 1, 1, 1);
 			set_random_pos(mMole);
 			score += 1;
-			DBOUT(score);
+			high_scores(score);
+			//DBOUT(score);
 		}
 	}
 	if (!Game::sMKIn.GetMouseButton(MouseAndKeys::ButtonT::LBUTTON))
@@ -360,7 +377,7 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 	font->DrawString(&batch, timer_text.str().c_str(), Vector2(725, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 
 	UpdateTimer(dTime);
-	DBOUT(game_time);
+	//DBOUT(game_time);
 }
 
 void PlayMode::RenderEnd(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
