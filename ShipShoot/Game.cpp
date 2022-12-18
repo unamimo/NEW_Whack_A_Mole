@@ -193,15 +193,8 @@ void PlayMode::set_random_pos(Sprite& sprite1)
 	sprite1.mPos = Vector2{ hole_coordinates[random_hole_pos].x, hole_coordinates[random_hole_pos].y };
 }
 
-void PlayMode::high_scores()
-{
-	vector<int> score_table = {};
-
-	if (score > 0)
-	{
-		score_table.push_back(score);
-	}
-	
+void PlayMode::high_scores(DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
+{	
 	std::ifstream inFile;	//input file
 	std::ofstream outFile;	//output file
 
@@ -214,6 +207,9 @@ void PlayMode::high_scores()
 	int best_score = score;
 	inFile >> best_score;
 
+	stringstream high_score_text;
+	high_score_text << "High Score: " << best_score;
+
 	outFile.open("best_scores.txt");
 	if (!outFile.is_open())
 	{
@@ -223,42 +219,15 @@ void PlayMode::high_scores()
 	if (best_score < score)
 	{
 		outFile << score;
+		DBOUT(score);
+		font->DrawString(&batch, high_score_text.str().c_str(), Vector2(336, 200), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 	}
 	else
 	{
 		outFile << best_score;
+		DBOUT(best_score);
+		font->DrawString(&batch, high_score_text.str().c_str(), Vector2(336, 250), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 	}
-
-	/*for (size_t i = 0; i < score_table.size(); i++)
-	{
-		DBOUT(score_table[i]);
-	}*/
-
-	/*std::ifstream input("best_scores.txt");
-	if (!input.is_open())
-	{
-		DBOUT("Unable to read file");
-		return;
-	}
-
-	int best_score;
-	input >> best_score;
-
-	std::ofstream output("best_scores.txt");
-	if (!output.is_open())
-	{
-		DBOUT("Unable to read file");
-		return;
-	}
-
-	if (best_score < score)
-	{
-		output << score;
-	}
-	else
-	{
-		output << best_score;
-	}*/
 
 	inFile.close();
 	outFile.close();
@@ -385,7 +354,6 @@ void PlayMode::Update(float dTime)
 
 void PlayMode::UpdateEnd(float dTime)
 {
-	high_scores();
 	game_time = 20;
 	score = 0;
 }
@@ -441,6 +409,8 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 void PlayMode::RenderEnd(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
 {
 	mEndScreen.Draw(batch);
+
+	high_scores(batch, font);
 
 	string end_text = "Game Over";
 	stringstream ss;
