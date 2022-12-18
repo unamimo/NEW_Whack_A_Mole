@@ -116,6 +116,9 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="WindowUtils.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="best_scores.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

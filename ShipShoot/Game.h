@@ -42,7 +42,7 @@ public:
 	bool check_collisions(Sprite& sprite1, Sprite& sprite2);
 	void set_random_pos(Sprite& sprite1);
 	bool check_time(float dTime);
-	void high_scores(int score);
+	void high_scores();
 private:
 	const float SCROLL_SPEED = 10.f;
 	static const int BGND_LAYERS = 8;

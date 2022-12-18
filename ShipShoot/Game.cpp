@@ -7,6 +7,7 @@
 #include <cstdlib>		// for srand()
 #include <ctime>		// in use with srand() 
 #include <cmath>		//trunc() - removes decimals
+#include <fstream>		// for high score storing
 
 
 using namespace std;
@@ -192,7 +193,7 @@ void PlayMode::set_random_pos(Sprite& sprite1)
 	sprite1.mPos = Vector2{ hole_coordinates[random_hole_pos].x, hole_coordinates[random_hole_pos].y };
 }
 
-void PlayMode::high_scores(int score)
+void PlayMode::high_scores()
 {
 	vector<int> score_table = {};
 
@@ -201,10 +202,67 @@ void PlayMode::high_scores(int score)
 		score_table.push_back(score);
 	}
 	
-	for (size_t i = 0; i < score_table.size(); i++)
+	std::ifstream inFile;	//input file
+	std::ofstream outFile;	//output file
+
+	inFile.open("best_scores.txt");
+	if (!inFile.is_open())
 	{
-		DBOUT(i);
+		DBOUT("Unable to read input file");
 	}
+
+	int best_score = score;
+	inFile >> best_score;
+
+	outFile.open("best_scores.txt");
+	if (!outFile.is_open())
+	{
+		DBOUT("Unable to read output file");
+	}
+
+	if (best_score < score)
+	{
+		outFile << score;
+	}
+	else
+	{
+		outFile << best_score;
+	}
+
+	/*for (size_t i = 0; i < score_table.size(); i++)
+	{
+		DBOUT(score_table[i]);
+	}*/
+
+	/*std::ifstream input("best_scores.txt");
+	if (!input.is_open())
+	{
+		DBOUT("Unable to read file");
+		return;
+	}
+
+	int best_score;
+	input >> best_score;
+
+	std::ofstream output("best_scores.txt");
+	if (!output.is_open())
+	{
+		DBOUT("Unable to read file");
+		return;
+	}
+
+	if (best_score < score)
+	{
+		output << score;
+	}
+	else
+	{
+		output << best_score;
+	}*/
+
+	inFile.close();
+	outFile.close();
+	return;
 }
 
 void PlayMode::UpdateTimer(float dTime)
@@ -327,6 +385,7 @@ void PlayMode::Update(float dTime)
 
 void PlayMode::UpdateEnd(float dTime)
 {
+	high_scores();
 	game_time = 20;
 	score = 0;
 }
@@ -363,7 +422,6 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 			mMole.colour = Vector4(1, 1, 1, 1);
 			set_random_pos(mMole);
 			score += 1;
-			high_scores(score);
 			//DBOUT(score);
 		}
 	}
