@@ -295,7 +295,7 @@ void PlayMode::UpdateInput(float dTime)
 		else if (Game::sMKIn.IsPressed(VK_LEFT))
 			pos.x -= SPEED * dTime;
 
-		pos += mouse * MOUSE_SPEED * dTime;
+		pos += mouse;
 
 		if (sticked)
 		{
@@ -306,14 +306,14 @@ void PlayMode::UpdateInput(float dTime)
 
 		//keep it within the play area
 		pos += mPlayer.mPos;
-		if (pos.x < mPlayArea.left)
+		/*if (pos.x < mPlayArea.left)
 			pos.x = mPlayArea.left;
 		else if (pos.x > mPlayArea.right)
-			pos.x = mPlayArea.right;
-		if (pos.y < mPlayArea.top)
+			pos.x = mPlayArea.right;*/
+		/*if (pos.y < mPlayArea.top)
 			pos.y = mPlayArea.top;
 		else if (pos.y > mPlayArea.bottom)
-			pos.y = mPlayArea.bottom;
+			pos.y = mPlayArea.bottom;*/
 
 		mPlayer.mPos = pos;
 		mThrusting = GetClock() + 0.2f;
@@ -490,12 +490,13 @@ void PlayMode::InitPlayer()
 
 	//setup the play area
 	int w, h;
+	Vector2 mouse{ Game::sMKIn.GetMousePos(false) };
 	WinUtil::Get().GetClientExtents(w, h);
 	mPlayArea.left = mPlayer.GetScreenSize().x * 0.6f;
 	mPlayArea.top = mPlayer.GetScreenSize().y * 0.6f;
 	mPlayArea.right = w - mPlayArea.left;
 	mPlayArea.bottom = h * 0.75f;
-	mPlayer.mPos = Vector2(mPlayArea.left + mPlayer.GetScreenSize().x / 2.f, (mPlayArea.bottom - mPlayArea.top) / 2.f);
+	mPlayer.mPos = mouse;
 
 	vector<RECTF> frames(thrustAnim, thrustAnim + sizeof(thrustAnim) / sizeof(thrustAnim[0]));
 	p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "thrust.dds", "thrust", true, &frames);

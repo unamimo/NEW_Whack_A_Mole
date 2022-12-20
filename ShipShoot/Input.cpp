@@ -361,7 +361,7 @@ void MouseAndKeys::Initialise(HWND hwnd, bool showMouse, bool confineMouse)
 
 	ShowCursor(showMouse);
 	//hide mouse on screen
-	while (ShowCursor(false) >= 0);
+	//while (ShowCursor(false) >= 0);
 	mConfineMouse = confineMouse;
 	GetClipCursor(&mOldClip);
 	if (mConfineMouse)
