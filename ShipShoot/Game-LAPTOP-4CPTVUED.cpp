@@ -7,7 +7,6 @@
 #include <cstdlib>		// for srand()
 #include <ctime>		// in use with srand() 
 #include <cmath>		//trunc() - removes decimals
-#include <fstream>		// for high score storing
 
 
 using namespace std;
@@ -193,45 +192,19 @@ void PlayMode::set_random_pos(Sprite& sprite1)
 	sprite1.mPos = Vector2{ hole_coordinates[random_hole_pos].x, hole_coordinates[random_hole_pos].y };
 }
 
-void PlayMode::high_scores(DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
-{	
-	std::ifstream inFile;	//input file
-	std::ofstream outFile;	//output file
+void PlayMode::high_scores(int score)
+{
+	vector<int> score_table = {};
 
-	inFile.open("best_scores.txt");
-	if (!inFile.is_open())
+	if (score > 0)
 	{
-		DBOUT("Unable to read input file");
+		score_table.push_back(score);
 	}
-
-	int best_score = score;
-	inFile >> best_score;
-
-	stringstream high_score_text;
-	high_score_text << "High Score: " << best_score;
-
-	outFile.open("best_scores.txt");
-	if (!outFile.is_open())
+	
+	for (size_t i = 0; i < score_table.size(); i++)
 	{
-		DBOUT("Unable to read output file");
+		DBOUT(i);
 	}
-
-	if (best_score < score)
-	{
-		outFile << score;
-		DBOUT(score);
-		font->DrawString(&batch, high_score_text.str().c_str(), Vector2(336, 200), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
-	}
-	else
-	{
-		outFile << best_score;
-		DBOUT(best_score);
-		font->DrawString(&batch, high_score_text.str().c_str(), Vector2(336, 250), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
-	}
-
-	inFile.close();
-	outFile.close();
-	return;
 }
 
 void PlayMode::UpdateTimer(float dTime)
@@ -295,7 +268,7 @@ void PlayMode::UpdateInput(float dTime)
 		else if (Game::sMKIn.IsPressed(VK_LEFT))
 			pos.x -= SPEED * dTime;
 
-		pos += mouse;
+		pos += mouse * MOUSE_SPEED * dTime;
 
 		if (sticked)
 		{
@@ -306,14 +279,14 @@ void PlayMode::UpdateInput(float dTime)
 
 		//keep it within the play area
 		pos += mPlayer.mPos;
-		/*if (pos.x < mPlayArea.left)
+		if (pos.x < mPlayArea.left)
 			pos.x = mPlayArea.left;
 		else if (pos.x > mPlayArea.right)
-			pos.x = mPlayArea.right;*/
-		/*if (pos.y < mPlayArea.top)
+			pos.x = mPlayArea.right;
+		if (pos.y < mPlayArea.top)
 			pos.y = mPlayArea.top;
 		else if (pos.y > mPlayArea.bottom)
-			pos.y = mPlayArea.bottom;*/
+			pos.y = mPlayArea.bottom;
 
 		mPlayer.mPos = pos;
 		mThrusting = GetClock() + 0.2f;
@@ -366,7 +339,6 @@ void PlayMode::UpdateIntro(float dTime)
 
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
 {
-	
 	bool whacked = false; 
 	stringstream ss;
 	ss << "Score: " << score;
@@ -391,6 +363,7 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 			mMole.colour = Vector4(1, 1, 1, 1);
 			set_random_pos(mMole);
 			score += 1;
+			high_scores(score);
 			//DBOUT(score);
 		}
 	}
@@ -403,8 +376,6 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 	font->DrawString(&batch, ss.str().c_str(), Vector2(0, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 	font->DrawString(&batch, timer_text.str().c_str(), Vector2(725, 0), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 
-	Vector2 mouse{ Game::sMKIn.GetMousePos(true) };
-	mPlayer.mPos = mouse;
 	UpdateTimer(dTime);
 	//DBOUT(game_time);
 }
@@ -412,8 +383,6 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 void PlayMode::RenderEnd(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
 {
 	mEndScreen.Draw(batch);
-
-	high_scores(batch, font);
 
 	string end_text = "Game Over";
 	stringstream ss;
@@ -489,17 +458,16 @@ void PlayMode::InitPlayer()
 	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "hammer.dds");
 	mPlayer.SetTex(*p);
 	mPlayer.SetScale(Vector2(0.3f, 0.3f));
-	mPlayer.origin = mPlayer.GetTexData().dim/2;
+	mPlayer.origin = mPlayer.GetTexData().dim / 2.f;
 
 	//setup the play area
 	int w, h;
-	Vector2 mouse{ Game::sMKIn.GetMousePos(false) };
 	WinUtil::Get().GetClientExtents(w, h);
 	mPlayArea.left = mPlayer.GetScreenSize().x * 0.6f;
 	mPlayArea.top = mPlayer.GetScreenSize().y * 0.6f;
 	mPlayArea.right = w - mPlayArea.left;
 	mPlayArea.bottom = h * 0.75f;
-	mPlayer.mPos = {0,0};
+	mPlayer.mPos = Vector2(mPlayArea.left + mPlayer.GetScreenSize().x / 2.f, (mPlayArea.bottom - mPlayArea.top) / 2.f);
 
 	vector<RECTF> frames(thrustAnim, thrustAnim + sizeof(thrustAnim) / sizeof(thrustAnim[0]));
 	p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "thrust.dds", "thrust", true, &frames);
