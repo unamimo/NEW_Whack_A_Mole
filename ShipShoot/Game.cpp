@@ -362,8 +362,6 @@ void PlayMode::UpdateEnd(float dTime)
 void PlayMode::UpdateIntro(float dTime)
 {
 	audio.Initialise();
-	unsigned int musicHdl;
-	unsigned int sfxHdl;
 	audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);
 	
 	if (!audio.GetSongMgr()->IsPlaying(musicHdl))
@@ -396,6 +394,7 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 		if (whacked)
 		{
 			mMole.colour = Vector4(1, 1, 1, 1);
+			audio.GetSfxMgr()->Play("spring", true, false, &sfxHdl, 0.1f);
 			set_random_pos(mMole);
 			score += 1;
 			//DBOUT(score);

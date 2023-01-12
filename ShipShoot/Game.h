@@ -54,6 +54,8 @@ private:
 	bool keyAlreadyDown = false;
 	float game_time = 20;
 	int score = 0;
+	unsigned int musicHdl;
+	unsigned int sfxHdl;
 
 	MyD3D& mD3D;
 	std::vector<Sprite> mBgnd; //parallax layers
