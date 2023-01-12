@@ -361,6 +361,13 @@ void PlayMode::UpdateEnd(float dTime)
 
 void PlayMode::UpdateIntro(float dTime)
 {
+	audio.Initialise();
+	unsigned int musicHdl;
+	unsigned int sfxHdl;
+	audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);
+	
+	if (!audio.GetSongMgr()->IsPlaying(musicHdl))
+		audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);
 	///things here 
 	//anything that needs to be changed in the into
 }

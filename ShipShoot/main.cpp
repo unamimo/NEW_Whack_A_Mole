@@ -67,10 +67,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	WinUtil::Get().SetD3D(d3d);
 	d3d.GetCache().SetAssetPath("data/");
 	AudioMgrFMOD audio;
-	audio.Initialise();
+	/*audio.Initialise();
 	unsigned int musicHdl;
 	unsigned int sfxHdl;
-	audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);
+	audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);*/
 
 	Game game(d3d);
 
@@ -81,8 +81,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 		if (canUpdateRender && dTime > 0)
 		{
 			audio.Update();
-			if (!audio.GetSongMgr()->IsPlaying(musicHdl))
-				audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);
+			//if (!audio.GetSongMgr()->IsPlaying(musicHdl))
+				//audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);
 				//audio.GetSfxMgr()->Play("spring", false, false, &sfxHdl, 0.003f);
 			game.Update(dTime);
 			game.Render(dTime);
