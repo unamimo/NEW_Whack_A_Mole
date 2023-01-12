@@ -6,6 +6,7 @@
 
 #include "WindowUtils.h"
 #include "Game.h"
+#include "AudioMgrFMOD.h"
 
 using namespace std;
 using namespace DirectX;
@@ -52,7 +53,8 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
 {
-
+	
+	File::initialiseSystem();
 	int w(850), h(512);
 	//int defaults[] = { 640,480, 800,600, 1024,768, 1280,1024 };
 		//WinUtil::ChooseRes(w, h, defaults, 4);
@@ -64,6 +66,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 		assert(false);
 	WinUtil::Get().SetD3D(d3d);
 	d3d.GetCache().SetAssetPath("data/");
+	AudioMgrFMOD audio;
+	audio.Initialise();
+	unsigned int musicHdl;
+	unsigned int sfxHdl;
+	audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);
+
 	Game game(d3d);
 
 	bool canUpdateRender;
@@ -72,6 +80,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	{
 		if (canUpdateRender && dTime > 0)
 		{
+			audio.Update();
+			if (!audio.GetSongMgr()->IsPlaying(musicHdl))
+				audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);
+				//audio.GetSfxMgr()->Play("spring", false, false, &sfxHdl, 0.003f);
 			game.Update(dTime);
 			game.Render(dTime);
 		}

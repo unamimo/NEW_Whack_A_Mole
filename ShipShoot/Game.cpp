@@ -18,6 +18,7 @@ using namespace std::chrono; // nanoseconds, system_clock, seconds
 
 MouseAndKeys Game::sMKIn;
 Gamepads Game::sGamepads;
+AudioMgrFMOD audio;
 
 const RECTF missileSpin[]{
 	{ 0,  0, 53, 48},
@@ -366,7 +367,6 @@ void PlayMode::UpdateIntro(float dTime)
 
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
 {
-	
 	bool whacked = false; 
 	stringstream ss;
 	ss << "Score: " << score;

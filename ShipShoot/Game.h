@@ -7,6 +7,7 @@
 #include "SpriteBatch.h"
 #include "Sprite.h"
 #include "SpriteFont.h"
+#include "AudioMgrFMOD.h"
 
 /*
 Animated missile bullet 
