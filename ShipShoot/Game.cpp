@@ -64,6 +64,7 @@ void Game::Update(float dTime)
 	case State::INTRO:
 		if (Game::sMKIn.IsPressed(VK_P))
 		{
+			audio.Update();
 			mPMode.UpdateIntro(dTime);
 			game_state = State::PLAY;
 		}
@@ -357,16 +358,25 @@ void PlayMode::UpdateEnd(float dTime)
 {
 	game_time = 20;
 	score = 0;
+
+	audio.Update();
+	audio.GetSfxMgr()->Play("click", false, false, &sfxHdl, 0.02f);
+}
+
+void PlayMode::UpdateEndSound(float dTime)
+{
+	audio.Update();
+	audio.GetSfxMgr()->Play("gameover", false, false, &sfxHdl, 0.1f);
 }
 
 void PlayMode::UpdateIntro(float dTime)
 {
 	audio.Initialise();
-	audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);
 	
+	audio.Update();
+	audio.GetSfxMgr()->Play("click", false, false, &sfxHdl, 0.1f);
 	if (!audio.GetSongMgr()->IsPlaying(musicHdl))
-		audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);
-	///things here 
+		audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);	
 	//anything that needs to be changed in the into
 }
 
@@ -394,6 +404,7 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 		if (whacked)
 		{
 			mMole.colour = Vector4(1, 1, 1, 1);
+			audio.Update();
 			audio.GetSfxMgr()->Play("spring", true, false, &sfxHdl, 0.1f);
 			set_random_pos(mMole);
 			score += 1;

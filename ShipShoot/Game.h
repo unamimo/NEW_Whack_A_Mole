@@ -36,6 +36,7 @@ public:
 	PlayMode(MyD3D& d3d);
 	void Update(float dTime);
 	void UpdateEnd(float dTime);
+	void UpdateEndSound(float dTime);
 	void UpdateIntro(float dTime);
 	void Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);
 	void RenderEnd(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);
