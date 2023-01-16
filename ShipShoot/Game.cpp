@@ -165,6 +165,7 @@ bool PlayMode::check_collisions(Sprite& sprite1, Sprite& sprite2)
 	//distance between origins
 	float origin_dis_x = fabs(sprite1.mPos.x - sprite2.mPos.x);
 	float origin_dis_y = fabs(sprite1.mPos.y - sprite2.mPos.y);
+
 	
 	if ((sprite1.colour == Vector4(0, 255, 0, 0)) || (sprite2.colour == Vector4(0, 255, 0, 0)))
 	{
@@ -396,20 +397,12 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteF
 	{
 		mouseAlreadyDown = true;
 		keyAlreadyDown = true;
-		mMole.colour = Vector4(0, 255, 0, 0);
-		if (mMole.colour == Vector4(0, 255, 0, 0))
-		{
-			whacked = true;
-		}
-		if (whacked)
-		{
-			mMole.colour = Vector4(1, 1, 1, 1);
-			audio.Update();
-			audio.GetSfxMgr()->Play("spring", true, false, &sfxHdl, 0.1f);
-			set_random_pos(mMole);
-			score += 1;
-			//DBOUT(score);
-		}
+
+		audio.Update();
+		audio.GetSfxMgr()->Play("spring", true, false, &sfxHdl, 0.1f);
+		set_random_pos(mMole);
+		score += 1;
+		//DBOUT(score);
 	}
 	if (!Game::sMKIn.GetMouseButton(MouseAndKeys::ButtonT::LBUTTON))
 		mouseAlreadyDown = false;
