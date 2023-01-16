@@ -172,8 +172,8 @@ bool PlayMode::check_collisions(Sprite& sprite1, Sprite& sprite2)
 		return false;
 	}
 
-	if (((sprite1.GetScreenSize().x)/2 + (sprite2.GetScreenSize().x)/2) > origin_dis_x && 
-		((sprite1.GetScreenSize().y) / 2 + (sprite2.GetScreenSize().y) / 2) > origin_dis_y)
+	if (((sprite1.GetScreenSize().x)/2 + (sprite2.GetScreenSize().y)/2) > origin_dis_x && 
+		((sprite1.GetScreenSize().y) / 2 + (sprite2.GetScreenSize().x) / 2) > origin_dis_y)
 	{
 		return true;
 	}
@@ -186,14 +186,14 @@ bool PlayMode::check_collisions(Sprite& sprite1, Sprite& sprite2)
 void PlayMode::set_random_pos(Sprite& sprite1)
 {
 	vector<Vector2> hole_coordinates =
-	{ {142, 20}, {335, 20}, {520, 20},
-	{142, 165}, {335, 165}, {530, 165},
-	{142, 310}, {335, 310}, {530, 310} };
+	{ {455, 220}, {845, 235}, {1220, 235},
+	{455, 495}, {845, 495}, {1220, 495},
+	{455, 795}, {845, 795}, {1220, 795} };
 	
 	srand(time(0));
 	int random_hole_pos = rand() % hole_coordinates.size();
 
-	sprite1.mPos = Vector2{ hole_coordinates[random_hole_pos].x, hole_coordinates[random_hole_pos].y };
+	sprite1.mPos = Vector2{ (hole_coordinates[random_hole_pos].x)/2, hole_coordinates[random_hole_pos].y/2};
 }
 
 void PlayMode::high_scores(DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
@@ -490,6 +490,7 @@ void PlayMode::InitMole()
 	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "mole.dds");
 	mMole.SetTex(*p); 
 	mMole.SetScale(Vector2(0.6f, 0.6f));
+	mMole.origin = mMole.GetTexData().dim / 2;
 	set_random_pos(mMole);
 }
 
