@@ -45,6 +45,8 @@ public:
 	void set_random_pos(Sprite& sprite1);
 	bool check_time(float dTime);
 	void high_scores(DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);
+	unsigned int musicHdl;
+	unsigned int sfxHdl;
 private:
 	const float SCROLL_SPEED = 10.f;
 	static const int BGND_LAYERS = 8;
@@ -55,8 +57,6 @@ private:
 	bool keyAlreadyDown = false;
 	float game_time = 20;
 	int score = 0;
-	unsigned int musicHdl;
-	unsigned int sfxHdl;
 
 	MyD3D& mD3D;
 	std::vector<Sprite> mBgnd; //parallax layers

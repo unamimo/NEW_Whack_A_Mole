@@ -76,6 +76,7 @@ void Game::Update(float dTime)
 			break;
 		}
 	case State::END:
+		audio.GetSongMgr()->SetPause(mPMode.musicHdl);
 		if (Game::sMKIn.IsPressed(VK_R))
 		{
 			mPMode.UpdateEnd(dTime);
