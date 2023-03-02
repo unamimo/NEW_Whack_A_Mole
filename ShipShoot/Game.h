@@ -38,6 +38,8 @@ public:
 	void UpdateEnd(float dTime);
 	void UpdateEndSound(float dTime);
 	void UpdateIntro(float dTime);
+	void InitSound(float dTime);
+	void StopMusic(float dTime);
 	void Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);
 	void RenderEnd(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);
 	void RenderIntro(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font);

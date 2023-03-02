@@ -64,6 +64,7 @@ void Game::Update(float dTime)
 	case State::INTRO:
 		if (Game::sMKIn.IsPressed(VK_P))
 		{
+			mPMode.InitSound(dTime);
 			audio.Update();
 			mPMode.UpdateIntro(dTime);
 			game_state = State::PLAY;
@@ -372,13 +373,17 @@ void PlayMode::UpdateEndSound(float dTime)
 
 void PlayMode::UpdateIntro(float dTime)
 {
-	audio.Initialise();
-	
-	audio.Update();
-	audio.GetSfxMgr()->Play("click", false, false, &sfxHdl, 0.1f);
-	if (!audio.GetSongMgr()->IsPlaying(musicHdl))
-		audio.GetSongMgr()->Play("kirby", true, false, &musicHdl, 0.2f);	
+	//audio.Initialise();
+	if (!(audio.GetSongMgr()->IsPlaying(musicHdl)))
+		audio.GetSongMgr()->Play("kirby_short", true, false, &musicHdl, 0.2f);
+	audio.GetSfxMgr()->Play("click_cut", false, false, &sfxHdl, 0.1f);
+	audio.Update();	
 	//anything that needs to be changed in the into
+}
+
+void PlayMode::InitSound(float dTime)
+{
+	audio.Initialise();
 }
 
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
