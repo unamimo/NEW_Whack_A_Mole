@@ -436,7 +436,7 @@ void PlayMode::RenderEnd(float dTime, DirectX::SpriteBatch& batch, DirectX::Spri
 	font->DrawString(&batch, replay_text.c_str(), Vector2(336, 300), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 
 	//audio.Update();
-	//audio.GetSfxMgr()->Play("gameover", false, false, &sfxHdl, 0.1f);
+	audio.GetSfxMgr()->Play("gameover", false, false, &sfxHdl, 0.1f);
 }
 
 void PlayMode::RenderIntro(float dTime, DirectX::SpriteBatch& batch, DirectX::SpriteFont* font)
