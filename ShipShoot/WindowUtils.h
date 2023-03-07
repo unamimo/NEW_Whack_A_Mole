@@ -15,18 +15,22 @@ public:
 	WinUtil(WinUtil const&) = delete;
 	void operator=(WinUtil const&) = delete;
 	static WinUtil& Get()
-	{ 
-		static WinUtil instance; 
+	{
+		static WinUtil instance;
 		return instance;
 	}
 	static LRESULT DefaultMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		return WinUtil::Get().RealDefaultMssgHandler(hwnd, msg, wParam, lParam);
 	}
-	bool InitMainWindow(int width, int height, HINSTANCE hInstance, const std::string& appName, WNDPROC mssgHandler, bool centred=true);
+	bool InitMainWindow(int width, int height, HINSTANCE hInstance, const std::string& appName, WNDPROC mssgHandler, bool centred = true);
 	void SetD3D(MyD3D& d3d) {
 		assert(mpMyD3D == nullptr);
 		mpMyD3D = &d3d;
+	}
+	MyD3D& GetD3D() {
+		assert(mpMyD3D);
+		return *mpMyD3D;
 	}
 	//wrap your game in one function call if using basic functions
 	int Run(void(*pUpdate)(float), void(*pRender)(float));
@@ -46,6 +50,7 @@ public:
 	int GetClientHeight() const {
 		return mWinData.clientHeight;
 	}
+	float GetAspectRatio();
 	void ChooseRes(int& w, int& h, int defaults[], int numPairs);
 
 private:
@@ -63,10 +68,10 @@ private:
 		int clientHeight;
 	};
 	WinData mWinData;
-	MyD3D *mpMyD3D;
-	
-	WinUtil() 
-		:mpMyD3D(nullptr) 
+	MyD3D* mpMyD3D;
+
+	WinUtil()
+		:mpMyD3D(nullptr)
 	{}
 	LRESULT RealDefaultMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 };

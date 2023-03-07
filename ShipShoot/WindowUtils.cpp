@@ -26,6 +26,15 @@ void WinUtil::GetClientExtents(int& width, int& height) const
 	height = mWinData.clientHeight;
 }
 
+float WinUtil::GetAspectRatio()
+{
+	int w, h;
+	GetClientExtents(w, h);
+	return (float)w / h;
+}
+
+
+
 LRESULT WinUtil::RealDefaultMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -72,7 +81,7 @@ LRESULT WinUtil::RealDefaultMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 				{
 					mWinData.appPaused = false;
 					mWinData.minimized = false;
-					mpMyD3D->OnResize(mWinData.clientWidth, mWinData.clientHeight,*mpMyD3D);
+					mpMyD3D->OnResize(mWinData.clientWidth, mWinData.clientHeight, *mpMyD3D);
 				}
 
 				// Restoring from maximized state?
@@ -80,7 +89,7 @@ LRESULT WinUtil::RealDefaultMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 				{
 					mWinData.appPaused = false;
 					mWinData.maximized = false;
-					mpMyD3D->OnResize(mWinData.clientWidth, mWinData.clientHeight,*mpMyD3D);
+					mpMyD3D->OnResize(mWinData.clientWidth, mWinData.clientHeight, *mpMyD3D);
 				}
 				else if (mWinData.resizing)
 				{
@@ -112,7 +121,7 @@ LRESULT WinUtil::RealDefaultMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 	case WM_EXITSIZEMOVE:
 		mWinData.appPaused = false;
 		mWinData.resizing = false;
-		if(mpMyD3D)
+		if (mpMyD3D)
 			mpMyD3D->OnResize(mWinData.clientWidth, mWinData.clientHeight, *mpMyD3D);
 		return 0;
 
@@ -237,7 +246,7 @@ float WinUtil::EndLoop(bool didUpdateRender)
 		__int64 time2;
 		QueryPerformanceCounter((LARGE_INTEGER*)&time2);
 		if (sTime1 != 0)
-			deltaTime = (float)((time2 - sTime1)*secondsPerCount);
+			deltaTime = (float)((time2 - sTime1) * secondsPerCount);
 		sTime1 = time2;
 		AddSecToClock(deltaTime);
 
@@ -277,11 +286,11 @@ int WinUtil::Run(void(*pUpdate)(float), void(*pRender)(float))
 					pUpdate(deltaTime);
 				pRender(deltaTime);
 
-				static __int64 sTime1=0;
+				static __int64 sTime1 = 0;
 				__int64 time2;
 				QueryPerformanceCounter((LARGE_INTEGER*)&time2);
-				if(sTime1!=0)
-					deltaTime = (float)((time2 - sTime1)*secondsPerCount);
+				if (sTime1 != 0)
+					deltaTime = (float)((time2 - sTime1) * secondsPerCount);
 				sTime1 = time2;
 				AddSecToClock(deltaTime);
 			}
@@ -305,7 +314,7 @@ void WinUtil::ChooseRes(int& w, int& h, int defaults[], int numPairs)
 	h = 0;
 	for (int i = 0; i < numPairs; ++i)
 	{
-		int newW = defaults[i * 2], newH = defaults[i*2+1];
+		int newW = defaults[i * 2], newH = defaults[i * 2 + 1];
 
 		if (w < newW && newW < sw && newH < sh)
 		{

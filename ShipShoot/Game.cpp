@@ -1,7 +1,10 @@
 #include "Game.h"
+#include "D3D.h"
 #include "WindowUtils.h"
 #include "CommonStates.h"
 //#include "Timer.h"		// for timing
+#include "GeometryBuilder.h"
+
 #include <iostream>
 #include <thread>
 #include <cstdlib>		// for srand()
@@ -20,19 +23,118 @@ MouseAndKeys Game::sMKIn;
 Gamepads Game::sGamepads;
 AudioMgrFMOD audio;
 
-const RECTF missileSpin[]{
-	{ 0,  0, 53, 48},
-	{ 54, 0, 107, 48 },
-	{ 108, 0, 161, 48 },
-	{ 162, 0, 220, 48 },
-};
+void Setup(Model& m, Mesh& source, const Vector3& scale, const Vector3& pos, const Vector3& rot)
+{
+	m.Initialise(source);
+	m.GetScale() = scale;
+	m.GetPosition() = pos;
+	m.GetRotation() = rot;
+}
 
-const RECTF thrustAnim[]{
-	{ 0,  0, 15, 16},
-	{ 16, 0, 31, 16 },
-	{ 32, 0, 47, 16 },
-	{ 48, 0, 64, 16 },
-};
+void Setup(Model& m, Mesh& source, float scale, const Vector3& pos, const Vector3& rot)
+{
+	Setup(m, source, Vector3(scale, scale, scale), pos, rot);
+}
+
+void Game::Load()
+{
+	MyD3D& d3d = WinUtil::Get().GetD3D();
+
+	Model m;
+	mModels.insert(mModels.begin(), Modelid::TOTAL, m);
+
+	Mesh& quadMesh = BuildQuad(d3d.GetMeshMgr());
+	Mesh& cubeMesh = BuildCube(d3d.GetMeshMgr());
+
+	//textured lit box
+	mModels[Modelid::BOX].Initialise(cubeMesh);
+	mModels[Modelid::BOX].GetPosition() = Vector3(0, -0.5f, 1);
+	mModels[Modelid::BOX].GetScale() = Vector3(0.5f, 0.5f, 0.5f);
+	Material mat = mModels[3].GetMesh().GetSubMesh(0).material;
+	mat.gfxData.Set(Vector4(0.5, 0.5, 0.5, 1), Vector4(1, 1, 1, 0), Vector4(1, 1, 1, 1));
+	mat.pTextureRV = d3d.GetCache().LoadTexture(&d3d.GetDevice(), "tiles.dds");
+	mat.texture = "tiles.dds";
+	mat.flags |= Material::TFlags::TRANSPARENCY;
+	mat.SetBlendFactors(0.5, 0.5, 0.5, 1);
+	mModels[Modelid::BOX].SetOverrideMat(&mat);
+
+	//cross
+	mModels[Modelid::CROSS].Initialise(cubeMesh);
+	mat.flags &= ~Material::TFlags::TRANSPARENCY;
+	mModels[Modelid::CROSS].GetScale() = Vector3(0.5f, 0.5f, 0.5f);
+	mModels[Modelid::CROSS].GetPosition() = Vector3(1.5f, -0.45f, 1);
+	mat.pTextureRV = d3d.GetCache().LoadTexture(&d3d.GetDevice(), "cross.dds");
+	mat.texture = "cross";
+	mat.flags |= Material::TFlags::ALPHA_TRANSPARENCY;
+	mat.flags &= ~Material::TFlags::CCW_WINDING;	//render the back
+	mModels[Modelid::CROSS].SetOverrideMat(&mat);
+
+	mModels[Modelid::CROSS2] = mModels[Modelid::CROSS];
+	mat.flags |= Material::TFlags::CCW_WINDING;	//render the front
+	mModels[Modelid::CROSS2].SetOverrideMat(&mat);
+
+	//window
+	mModels[Modelid::WINDOW].Initialise(cubeMesh);
+	mModels[Modelid::WINDOW].GetScale() = Vector3(0.75f, 0.75f, 0.75f);
+	mModels[Modelid::WINDOW].GetPosition() = Vector3(-1.75f, 0, 1.25f);
+	mat.pTextureRV = d3d.GetCache().LoadTexture(&d3d.GetDevice(), "alphaWindow.dds");
+	mat.texture = "alphawindow";
+	mat.flags |= Material::TFlags::ALPHA_TRANSPARENCY;
+	mat.flags &= ~Material::TFlags::CCW_WINDING;	//render the back
+	mModels[Modelid::WINDOW].SetOverrideMat(&mat);
+
+	mModels[Modelid::WINDOW2] = mModels[Modelid::WINDOW];
+	mat.flags |= Material::TFlags::CCW_WINDING;	//render the front
+	mModels[Modelid::WINDOW2].SetOverrideMat(&mat);
+
+	//quad wood floor
+	Setup(mModels[Modelid::FLOOR], quadMesh, Vector3(3, 1, 3), Vector3(0, -1, 0), Vector3(0, 0, 0));
+	mat = mModels[Modelid::FLOOR].GetMesh().GetSubMesh(0).material;
+	mat.gfxData.Set(Vector4(0.9f, 0.8f, 0.8f, 0), Vector4(0.9f, 0.8f, 0.8f, 0), Vector4(0.9f, 0.8f, 0.8f, 1));
+	mat.pTextureRV = d3d.GetCache().LoadTexture(&d3d.GetDevice(), "floor.dds");
+	mat.texture = "floor.dds";
+	mModels[Modelid::FLOOR].SetOverrideMat(&mat);
+
+	//back wall
+	Setup(mModels[Modelid::BACK_WALL], quadMesh, Vector3(3, 1, 1.5f), Vector3(0, 0.5f, 3), Vector3(-PI / 2, 0, 0));
+	mat.gfxData.Set(Vector4(1, 1, 1, 0), Vector4(1, 1, 1, 0), Vector4(1, 1, 1, 1));
+	mat.pTextureRV = d3d.GetCache().LoadTexture(&d3d.GetDevice(), "wall.dds");
+	mat.texture = "wall.dds";
+	mModels[Modelid::BACK_WALL].SetOverrideMat(&mat);
+
+	//left wall
+	Setup(mModels[Modelid::LEFT_WALL], quadMesh, Vector3(3, 1, 1.5f), Vector3(-3, 0.5f, 0), Vector3(-PI / 2, -PI / 2, 0));
+	mModels[Modelid::LEFT_WALL].SetOverrideMat(&mat);
+	mLoadData.loadedSoFar++;
+
+	//hero models
+	Mesh& cb = d3d.GetMeshMgr().CreateMesh("Cube");
+	cb.CreateFrom("../bin/data/two_mat_cube.fbx", d3d);
+	Setup(mModels[Modelid::SUCK], cb, 0.045f, Vector3(1, 0.25f, -1.5f), Vector3(PI / 2.f, 0, 0));
+	mLoadData.loadedSoFar++;
+
+	Mesh& ms = d3d.GetMeshMgr().CreateMesh("rock");
+	ms.CreateFrom("../bin/data/the_rock/TheRock2.obj", d3d);
+	Setup(mModels[Modelid::ROCK], ms, 0.0035f, Vector3(-1, 0.25f, -2.5f), Vector3(0, 0, 0));
+	mLoadData.loadedSoFar++;
+
+	Mesh& dr = d3d.GetMeshMgr().CreateMesh("dragon");
+	dr.CreateFrom("../bin/data/dragon/dragon.x", d3d);
+	Setup(mModels[Modelid::DRAGON], dr, 0.002f, Vector3(-1, 0.f, -1.5f), Vector3(0, PI, 0));
+	mLoadData.loadedSoFar++;
+
+	Mesh& dx = d3d.GetMeshMgr().CreateMesh("DrX");
+	dx.CreateFrom("../bin/data/drX/DrX.fbx", d3d);
+	Setup(mModels[Modelid::SCIENTIST], dx, .075f, Vector3(1, 0.5f, -2.5f), Vector3(PI / 2, PI, 0));
+	mLoadData.loadedSoFar++;
+
+	Mesh& sm = d3d.GetMeshMgr().CreateMesh("Mole");
+	sm.CreateFrom("../bin/data/mole/mole.fbx", d3d);
+	Setup(mModels[Modelid::MOLE], sm, 0.045f, Vector3(0, 0.f, -2.f), Vector3(PI / 2, 0, 0));
+	mLoadData.loadedSoFar++;
+
+	d3d.GetFX().SetupDirectionalLight(0, true, Vector3(-0.7f, -0.7f, 0.7f), Vector3(0.47f, 0.47f, 0.47f), Vector3(0.15f, 0.15f, 0.15f), Vector3(0.25f, 0.25f, 0.25f));
+}
 
 Game::Game(MyD3D& d3d)
 	: mPMode(d3d), mD3D(d3d), mpSB(nullptr), pFont(nullptr)
@@ -53,6 +155,41 @@ void Game::Release()
 	delete pFont;
 	mpSB = nullptr;
 	pFont = nullptr;
+}
+
+void Game::RenderLoad(float dTime)
+{
+	MyD3D& d3d = WinUtil::Get().GetD3D();
+	d3d.BeginRender(Colours::Black);
+
+	pFontBatch->Begin();
+
+	static int pips = 0;
+	static float elapsed = 0;
+	elapsed += dTime;
+	if (elapsed > 0.25f) {
+		pips++;
+		elapsed = 0;
+	}
+	if (pips > 10)
+		pips = 0;
+	wstringstream ss;
+	ss << L"Loading meshes(" << (int)(((float)mLoadData.loadedSoFar / (float)mLoadData.totalToLoad) * 100.f) << L"%) ";
+	for (int i = 0; i < pips; ++i)
+		ss << L'.';
+	pFont->DrawString(pFontBatch, ss.str().c_str(), Vector2(100, 200), Colours::White, 0, Vector2(0, 0), Vector2(1.f, 1.f));
+
+
+	ss.str(L"");
+	ss << L"FPS:" << (int)(1.f / dTime);
+	pFont->DrawString(pFontBatch, ss.str().c_str(), Vector2(10, 550), Colours::White, 0, Vector2(0, 0), Vector2(0.5f, 0.5f));
+
+
+	pFontBatch->End();
+
+
+	d3d.EndRender();
+
 }
 
 //called over and over, use it to update game logic
@@ -121,40 +258,67 @@ void Game::Render(float dTime)
 	sMKIn.PostProcess();
 }
 
-void Bullet::Init(MyD3D& d3d)
+void Game::Render3D(float dTime)
 {
-	vector<RECTF> frames2(missileSpin, missileSpin + sizeof(missileSpin) / sizeof(missileSpin[0]));
-	ID3D11ShaderResourceView* p = d3d.GetCache().LoadTexture(&d3d.GetDevice(), "missile.dds", "missile", true, &frames2);
-
-	bullet.SetTex(*p);
-	bullet.GetAnim().Init(0, 3, 15, true);
-	bullet.GetAnim().Play(true);
-	bullet.SetScale(Vector2(0.5f, 0.5f));
-	bullet.origin = Vector2((missileSpin[0].right - missileSpin[0].left) / 2.f, (missileSpin[0].bottom - missileSpin[0].top) / 2.f);
-	active = false;
-}
-
-void Bullet::Render(SpriteBatch& batch)
-{
-	if (active)
-		bullet.Draw(batch);
-}
-
-void Bullet::Update(float dTime)
-{
-	if (active)
+	if (mLoadData.running)
 	{
-		bullet.mPos.x += MISSILE_SPEED * dTime;
-		if (bullet.mPos.x > WinUtil::Get().GetClientWidth())
-			active = false;
-		bullet.GetAnim().Update(dTime);
+		if (!mLoadData.loader._Is_ready())
+		{
+			RenderLoad(dTime);
+			return;
+		}
+		mLoadData.loader.get();
+		mLoadData.running = false;
+		return;
 	}
+
+	MyD3D& d3d = WinUtil::Get().GetD3D();
+	d3d.BeginRender(Colours::Black);
+
+	float alpha = 0.5f + sinf(gAngle * 2) * 0.5f;
+
+	d3d.GetFX().SetPerFrameConsts(d3d.GetDeviceCtx(), mCamPos);
+
+	CreateViewMatrix(d3d.GetFX().GetViewMatrix(), mCamPos, Vector3(0, 0, 0), Vector3(0, 1, 0));
+	CreateProjectionMatrix(d3d.GetFX().GetProjectionMatrix(), 0.25f * PI, WinUtil::Get().GetAspectRatio(), 1, 1000.f);
+	Matrix w = Matrix::CreateRotationY(sinf(gAngle));
+	d3d.GetFX().SetPerObjConsts(d3d.GetDeviceCtx(), w);
+
+	//main cube - forced transparency under pogram control
+	Vector3 dir = Vector3(1, 0, 0);
+	Matrix m = Matrix::CreateRotationY(gAngle);
+	dir = dir.TransformNormal(dir, m);
+	d3d.GetFX().SetupSpotLight(1, true, mModels[Modelid::BOX].GetPosition(), dir, Vector3(0.2f, 0.05f, 0.05f), Vector3(0.01f, 0.01f, 0.01f), Vector3(0.01f, 0.01f, 0.01f));
+	dir *= -1;
+	d3d.GetFX().SetupSpotLight(2, true, mModels[Modelid::BOX].GetPosition(), dir, Vector3(0.05f, 0.2f, 0.05f), Vector3(0.01f, 0.01f, 0.01f), Vector3(0.01f, 0.01f, 0.01f));
+	float d = sinf(gAngle) * 0.5f + 0.5f;
+	mModels[Modelid::BOX].HasOverrideMat()->SetBlendFactors(d, d, d, 1);
+
+
+
+	for (auto& mod : mModels)
+		d3d.GetFX().Render(mod);
+
+	d3d.EndRender();
+}
+
+void Game::Initialise()
+{
+	MyD3D& d3d = WinUtil::Get().GetD3D();
+	pFontBatch = new SpriteBatch(&d3d.GetDeviceCtx());
+	assert(pFontBatch);
+	pFont = new SpriteFont(&d3d.GetDevice(), L"../bin/data/fonts/algerian.spritefont");
+	assert(pFont);
+
+	mLoadData.totalToLoad = 5;
+	mLoadData.loadedSoFar = 0;
+	mLoadData.running = true;
+	mLoadData.loader = std::async(launch::async, &Game::Load, this);
 }
 
 PlayMode::PlayMode(MyD3D& d3d)
-	:mD3D(d3d), mPlayer(d3d), mThrust(d3d), mMissile(d3d), mMoleBgnd(d3d), mMole(d3d), mEndScreen(d3d)
+	:mD3D(d3d), mPlayer(d3d), mMoleBgnd(d3d), mMole(d3d), mEndScreen(d3d)
 {
-	InitBgnd();
 	InitMoleBgnd();
 	InitPlayer();
 	InitMole();
@@ -257,25 +421,6 @@ bool PlayMode::check_time(float dTime)
 	}
 }
 
-void PlayMode::UpdateMissile(float dTime)
-{
-	if (!mMissile.active && Game::sMKIn.IsPressed(VK_SPACE))
-	{
-		mMissile.active = true;
-		mMissile.bullet.mPos = Vector2(mPlayer.mPos.x + mPlayer.GetScreenSize().x / 2.f, mPlayer.mPos.y);
-	}
-	mMissile.Update(dTime);
-}
-
-
-void PlayMode::UpdateBgnd(float dTime)
-{
-	//scroll the background layers
-	int i = 0;
-	for (auto& s : mBgnd)
-		s.Scroll(dTime * (i++) * SCROLL_SPEED, 0);
-}
-
 void PlayMode::UpdateInput(float dTime)
 {
 	Vector2 mouse{ Game::sMKIn.GetMousePos(false) };
@@ -333,27 +478,28 @@ void PlayMode::UpdateInput(float dTime)
 	}
 }
 
-void PlayMode::UpdateThrust(float dTime)
-{
-	if (mThrusting)
-	{
-		mThrust.mPos = mPlayer.mPos;
-		mThrust.mPos.x -= 25;
-		mThrust.mPos.y -= 12;
-		mThrust.SetScale(Vector2(1.5f, 1.5f));
-		mThrust.GetAnim().Update(dTime);
-	}
-}
-
 void PlayMode::Update(float dTime)
 {
-	UpdateBgnd(dTime);
-
-	UpdateMissile(dTime);
-
 	UpdateInput(dTime);
+}
 
-	UpdateThrust(dTime);
+void Game::Update3D(float dTime)
+{
+	gAngle += dTime * 0.5f;
+	mModels[Modelid::BOX].GetRotation().y = gAngle;
+
+	mModels[Modelid::CROSS].GetRotation().y = -gAngle;
+	mModels[Modelid::CROSS2].GetRotation().y = -gAngle;
+
+	mModels[Modelid::WINDOW].GetRotation().y = -gAngle * 0.5f;
+	mModels[Modelid::WINDOW2].GetRotation().y = -gAngle * 0.5f;
+
+	vector<Model*> spinme{ &mModels[Modelid::DRAGON], &mModels[Modelid::ROCK], &mModels[Modelid::SCIENTIST], &mModels[Modelid::SUCK], &mModels[Modelid::MOLE] };
+
+	for (size_t i = 0; i < spinme.size(); ++i) {
+		spinme[i]->GetPosition().y = (sinf(2 * GetClock() + (PI / 4) * i)) * 0.5f;
+		spinme[i]->GetRotation().y += (i < 2) ? dTime : -dTime;
+	}
 }
 
 void PlayMode::UpdateEnd(float dTime)
@@ -451,37 +597,6 @@ void PlayMode::RenderIntro(float dTime, DirectX::SpriteBatch& batch, DirectX::Sp
 	font->DrawString(&batch, play_text.c_str(), Vector2(336, 300), Colours::Black, 0.f, Vector2(0, 0), Vector2(1, 1));
 }
 
-void PlayMode::InitBgnd()
-{
-	//a sprite for each layer
-	assert(mBgnd.empty());
-	mBgnd.insert(mBgnd.begin(), BGND_LAYERS, Sprite(mD3D));
-
-	//a neat way to package pairs of things (nicknames and filenames)
-	pair<string, string> files[BGND_LAYERS]{
-		{ "bgnd0","backgroundlayers/mountains01_007.dds" },
-		{ "bgnd1","backgroundlayers/mountains01_005.dds" },
-		{ "bgnd2","backgroundlayers/mountains01_004.dds" },
-		{ "bgnd3","backgroundlayers/mountains01_003.dds" },
-		{ "bgnd4","backgroundlayers/mountains01_002.dds" },
-		{ "bgnd5","backgroundlayers/mountains01_001.dds" },
-		{ "bgnd6","backgroundlayers/mountains01_000.dds" },
-		{ "bgnd7","backgroundlayers/mountains01_006.dds" }
-	};
-	int i = 0;
-	for (auto& f : files)
-	{
-		//set each texture layer
-		ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), f.second, f.first);
-		if (!p)
-			assert(false);
-		mBgnd[i].SetTex(*p);
-		mBgnd[i].SetScale(Vector2(2, 2));
-		i++;
-	}
-
-}
-
 void PlayMode::InitMoleBgnd()
 {	
 	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "background.dds");
@@ -516,15 +631,6 @@ void PlayMode::InitPlayer()
 	mPlayArea.right = w - mPlayArea.left;
 	mPlayArea.bottom = h * 0.75f;
 	mPlayer.mPos = {0,0};
-
-	vector<RECTF> frames(thrustAnim, thrustAnim + sizeof(thrustAnim) / sizeof(thrustAnim[0]));
-	p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "thrust.dds", "thrust", true, &frames);
-	mThrust.SetTex(*p);
-	mThrust.GetAnim().Init(0, 3, 15, true);
-	mThrust.GetAnim().Play(true);
-	mThrust.rotation = PI / 2.f;
-
-	mMissile.Init(mD3D);
 }
 
 void PlayMode::InitEndScreen()
