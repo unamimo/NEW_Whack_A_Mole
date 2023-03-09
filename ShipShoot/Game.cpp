@@ -1,3 +1,5 @@
+//hello this is a test
+
 #include "Game.h"
 #include "D3D.h"
 #include "WindowUtils.h"
